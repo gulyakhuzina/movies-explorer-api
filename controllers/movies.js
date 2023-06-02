@@ -39,7 +39,6 @@ const createMovie = (req, res, next) => {
 };
 
 const deleteMovie = (req, res, next) => {
-  // const { cardId } = req.params;
   const { _id } = req.params;
   Movie.findById(_id)
     .orFail()

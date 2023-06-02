@@ -7,7 +7,7 @@ const cors = require('cors');
 
 const cookieParser = require('cookie-parser');
 
-const { NODE_ENV, PORT = 3000, MONGO_DB } = process.env;
+const { NODE_ENV, PORT, MONGO_DB } = process.env;
 const { celebrate, Joi, errors } = require('celebrate');
 const { userRoute, movieRoute } = require('./routes/index');
 const {
@@ -77,4 +77,4 @@ app.use(errors());
 
 app.use(handleErrors);
 
-app.listen(PORT);
+app.listen(NODE_ENV === 'production' ? PORT : 3000);
