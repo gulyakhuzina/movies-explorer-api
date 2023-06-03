@@ -1,11 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { OK, CONFLICT_ERROR_MESSAGE, COOKIES_DELETED } = require('../utils/constants');
 const ConflictError = require('../errors/conflict-err');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
-
-const OK = 201;
 
 function findById(req, res, next, userId) {
   User.findById(userId)
@@ -22,31 +21,36 @@ function updateInfo(req, res, next, info) {
     .then((user) => {
       res.send(user);
     })
-    .catch(next);
+    .catch((error) => {
+      if (error.code === 11000) {
+        return next(new ConflictError(CONFLICT_ERROR_MESSAGE));
+      }
+      return next(error);
+    });
 }
 
 const createUser = (req, res, next) => {
   const {
-    name, avatar, about, email, password,
+    name, email, password,
   } = req.body;
   bcrypt.hash(password, 10)
     .then((hash) => User.create({
-      name, avatar, about, email, password: hash,
+      name, email, password: hash,
     }))
     .then((user) => {
       res.status(OK).send(user);
     })
     .catch((error) => {
       if (error.code === 11000) {
-        return next(new ConflictError('Такой email уже существует'));
+        return next(new ConflictError(CONFLICT_ERROR_MESSAGE));
       }
       return next(error);
     });
 };
 
 const updateProfile = (req, res, next) => {
-  const { name, about } = req.body;
-  updateInfo(req, res, next, { name, about });
+  const { name, email } = req.body;
+  updateInfo(req, res, next, { name, email });
 };
 
 const login = (req, res, next) => {
@@ -75,7 +79,7 @@ const deleteCookie = (req, res) => {
     maxAge: 3600000,
     httpOnly: true,
   });
-  res.send('Cookies удалены');
+  res.send(COOKIES_DELETED);
 };
 
 const getCurrentUser = (req, res, next) => {

@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const AuthorizedError = require('../errors/auth-err');
+const { INVALID_EMAIL_MESSAGE, WRONG_DATA_MESSAGE } = require('../utils/constants');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -16,7 +17,7 @@ const userSchema = new mongoose.Schema({
     unique: true,
     validate: {
       validator: (email) => validator.isEmail(email),
-      message: 'Введен некоректный адрес электронной почты',
+      message: INVALID_EMAIL_MESSAGE,
     },
   },
   password: {
@@ -26,18 +27,17 @@ const userSchema = new mongoose.Schema({
   },
 }, { toJSON: { useProjection: true }, toObject: { useProjection: true } });
 
-// eslint-disable-next-line func-names
 userSchema.statics.findUserByCredentials = function (email, password) {
   return this.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        return Promise.reject(new AuthorizedError('Неправильные почта или пароль'));
+        return Promise.reject(new AuthorizedError(WRONG_DATA_MESSAGE));
       }
 
       return bcrypt.compare(password, user.password)
         .then((matched) => {
           if (!matched) {
-            return Promise.reject(new AuthorizedError('Неправильные почта или пароль'));
+            return Promise.reject(new AuthorizedError(WRONG_DATA_MESSAGE));
           }
 
           return user;

@@ -1,13 +1,13 @@
 const Movie = require('../models/movie');
 const ForbiddenError = require('../errors/forbidden-err');
-
-const OK = 201;
+const { OK, FORBIDDEN_ERROR_MESSAGE } = require('../utils/constants');
 
 const getMovies = (req, res, next) => {
   Movie.find()
     .populate(['owner'])
     .then((movies) => {
-      res.send(movies);
+      const userMovies = movies.filter((movie) => movie.owner._id.toString() === req.user._id);
+      return res.send(userMovies);
     })
     .catch(next);
 };
@@ -50,7 +50,7 @@ const deleteMovie = (req, res, next) => {
             res.send(delMovie);
           })
           .catch(next);
-      } else throw new ForbiddenError('Доступ запрещен');
+      } else throw new ForbiddenError(FORBIDDEN_ERROR_MESSAGE);
     })
     .catch(next);
 };

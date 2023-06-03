@@ -3,17 +3,20 @@ const { default: mongoose } = require('mongoose');
 const {
   DocumentNotFoundError, CastError, ValidationError,
 } = mongoose.Error;
+const {
+  ERROR_BAD_REQUEST,
+  ERROR_NOT_FOUND,
+  ERROR_SERVER,
+  ERROR_BAD_REQUEST_MESSAGE,
+  ERROR_SERVER_MESSAGE,
+  ERROR_NOT_FOUND_MESSAGE,
+} = require('../utils/constants');
 
-const ERROR_BAD_REQUEST = 400;
-const ERROR_NOT_FOUND = 404;
-const ERROR_SERVER = 500;
-
-// eslint-disable-next-line no-unused-vars
 const handleErrors = (err, req, res, next) => {
   if (err instanceof DocumentNotFoundError) {
-    res.status(ERROR_NOT_FOUND).send({ message: 'Запрашиваемые данные не найдены' });
+    res.status(ERROR_NOT_FOUND).send({ message: ERROR_NOT_FOUND_MESSAGE });
   } else if (err instanceof CastError) {
-    res.status(ERROR_BAD_REQUEST).send({ message: `Переданы некорректные данные: ${err.message}` });
+    res.status(ERROR_BAD_REQUEST).send({ message: ERROR_BAD_REQUEST_MESSAGE + err.message });
   } else if (err instanceof ValidationError) {
     const message = Object.values(err.errors)
       .map((error) => error.message)
@@ -22,8 +25,9 @@ const handleErrors = (err, req, res, next) => {
   } else if (err.statusCode) {
     res.status(err.statusCode).send({ message: err.message });
   } else {
-    res.status(ERROR_SERVER).send({ message: `Что-то пошло не так: ${err.message}` });
+    res.status(ERROR_SERVER).send({ message: ERROR_SERVER_MESSAGE + err.message });
   }
+  return next();
 };
 
 module.exports = handleErrors;

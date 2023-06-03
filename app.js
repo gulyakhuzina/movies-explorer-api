@@ -4,6 +4,7 @@ const app = express();
 const mongoose = require('mongoose');
 require('dotenv').config();
 const cors = require('cors');
+const helmet = require('helmet');
 
 const cookieParser = require('cookie-parser');
 
@@ -14,6 +15,7 @@ const {
   createUser, login, deleteCookie,
 } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const { PAGE_NOT_FOUND_MESSAGE, CRASH_TEST_MESSAGE } = require('./utils/constants');
 const handleErrors = require('./middlewares/handleErrors');
 const NotFoundError = require('./errors/not_found_err');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
@@ -36,6 +38,7 @@ const corsOptions = {
 
 mongoose.connect(NODE_ENV === 'production' ? MONGO_DB : 'mongodb://127.0.0.1:27017/bitfilmsdb', { useNewUrlParser: true });
 
+app.use(helmet());
 app.use(cookieParser());
 
 app.use(cors(corsOptions));
@@ -45,7 +48,7 @@ app.use(requestLogger);
 
 app.get('/crash-test', () => {
   setTimeout(() => {
-    throw new Error('Сервер сейчас упадёт');
+    throw new Error(CRASH_TEST_MESSAGE);
   }, 0);
 });
 
@@ -69,7 +72,7 @@ app.use(auth);
 app.use('/users', auth, userRoute);
 app.use('/movies', auth, movieRoute);
 
-app.use('*', (req, res, next) => next(new NotFoundError('Страница не найдена')));
+app.use('*', (req, res, next) => next(new NotFoundError(PAGE_NOT_FOUND_MESSAGE)));
 
 app.use(errorLogger);
 
