@@ -3,11 +3,10 @@ const ForbiddenError = require('../errors/forbidden-err');
 const { OK, FORBIDDEN_ERROR_MESSAGE } = require('../utils/constants');
 
 const getMovies = (req, res, next) => {
-  Movie.find()
+  Movie.find({ owner: req.user._id })
     .populate(['owner'])
     .then((movies) => {
-      const userMovies = movies.filter((movie) => movie.owner._id.toString() === req.user._id);
-      return res.send(userMovies);
+      res.send(movies);
     })
     .catch(next);
 };

@@ -8,8 +8,8 @@ const helmet = require('helmet');
 
 const cookieParser = require('cookie-parser');
 
-const { NODE_ENV, PORT, MONGO_DB } = process.env;
 const { celebrate, Joi, errors } = require('celebrate');
+const { NODE_ENV, PORT, MONGO_DB } = require('./utils/config');
 const { userRoute, movieRoute } = require('./routes/index');
 const {
   createUser, login, deleteCookie,
