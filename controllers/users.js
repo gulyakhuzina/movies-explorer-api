@@ -38,7 +38,23 @@ const createUser = (req, res, next) => {
       name, email, password: hash,
     }))
     .then((user) => {
-      res.status(OK).send(user);
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'some-secret-key',
+        { expiresIn: '7d' },
+      );
+      res
+        .cookie('jwt', token, {
+          // token - наш JWT токен, который мы отправляем
+          maxAge: 3600000, // 1 час
+          httpOnly: true,
+        });
+      res.status(OK).send({
+        token,
+        name: user.name,
+        email: user.email,
+        id: user._id,
+      });
     })
     .catch((error) => {
       if (error.code === 11000) {

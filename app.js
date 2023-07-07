@@ -36,6 +36,14 @@ const corsOptions = {
   optionsSuccessStatus: 204,
 };
 
+const options = {
+  errors: {
+    wrap: {
+      label: false,
+    },
+  },
+};
+
 mongoose.connect(NODE_ENV === 'production' ? MONGO_DB : 'mongodb://127.0.0.1:27017/bitfilmsdb', { useNewUrlParser: true });
 
 app.use(helmet());
@@ -54,17 +62,22 @@ app.get('/crash-test', () => {
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().email(),
+    email: Joi.string().required().email().messages({
+      'string.email': '{{#label}} должен быть корректным',
+    }),
     password: Joi.string().required(),
   }),
-}), login);
+}, options), login);
+
 app.post('/signup', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    email: Joi.string().required().email(),
+    name: Joi.string().min(2).max(30).required(),
+    email: Joi.string().required().email().messages({
+      'string.email': '{{#label}} должен быть корректным',
+    }),
     password: Joi.string().required(),
   }),
-}), createUser);
+}, options), createUser);
 app.post('/signout', deleteCookie);
 
 app.use(auth);

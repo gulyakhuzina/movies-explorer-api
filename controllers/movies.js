@@ -4,7 +4,6 @@ const { OK, FORBIDDEN_ERROR_MESSAGE } = require('../utils/constants');
 
 const getMovies = (req, res, next) => {
   Movie.find({ owner: req.user._id })
-    .populate(['owner'])
     .then((movies) => {
       res.send(movies);
     })
@@ -30,7 +29,6 @@ const createMovie = (req, res, next) => {
     nameEN,
     owner: req.user._id,
   })
-    .then((movie) => movie.populate(['owner']))
     .then((movie) => {
       res.status(OK).send(movie);
     })
@@ -38,18 +36,11 @@ const createMovie = (req, res, next) => {
 };
 
 const deleteMovie = (req, res, next) => {
-  const { _id } = req.params;
-  Movie.findById(_id)
+  const { movieId } = req.params;
+  Movie.findOneAndRemove({ movieId })
     .orFail()
-    .populate(['owner'])
     .then((movie) => {
-      if (movie.owner._id.toString() === req.user._id) {
-        movie.deleteOne()
-          .then((delMovie) => {
-            res.send(delMovie);
-          })
-          .catch(next);
-      } else throw new ForbiddenError(FORBIDDEN_ERROR_MESSAGE);
+      res.status(OK).send(movie);
     })
     .catch(next);
 };

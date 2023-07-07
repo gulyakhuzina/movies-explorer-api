@@ -22,9 +22,9 @@ movieRoute.post('/', celebrate({
     nameEN: Joi.string().required(),
   }),
 }), createMovie);
-movieRoute.delete('/:_id', celebrate({
+movieRoute.delete('/:movieId', celebrate({
   params: Joi.object().keys({
-    _id: Joi.string().required().hex().length(24),
+    movieId: Joi.string().required().hex(),
   }),
 }), deleteMovie);
 
