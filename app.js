@@ -22,7 +22,7 @@ const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const allowedCors = [
   'http://localhost:3001',
-  'https://films.khuzinagulya.nomoredomains.rocks',
+  'https://films.khuzinagulya.nomoredomains.work',
   'https://praktikum.tk',
   'http://praktikum.tk',
 ];
