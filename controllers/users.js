@@ -45,9 +45,10 @@ const createUser = (req, res, next) => {
       );
       res
         .cookie('jwt', token, {
-          // token - наш JWT токен, который мы отправляем
           maxAge: 3600000, // 1 час
           httpOnly: true,
+          sameSite: 'none',
+          secure: true,
         });
       res.status(OK).send({
         token,
@@ -81,9 +82,10 @@ const login = (req, res, next) => {
       );
       res
         .cookie('jwt', token, {
-          // token - наш JWT токен, который мы отправляем
           maxAge: 3600000,
           httpOnly: true,
+          sameSite: 'none',
+          secure: true,
         });
       res.send({ token });
     })
@@ -94,6 +96,8 @@ const deleteCookie = (req, res) => {
   res.clearCookie('jwt', {
     maxAge: 3600000,
     httpOnly: true,
+    sameSite: 'none',
+    secure: true,
   });
   res.send(COOKIES_DELETED);
 };
