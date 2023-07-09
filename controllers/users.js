@@ -45,7 +45,6 @@ const createUser = (req, res, next) => {
       );
       res
         .cookie('jwt', token, {
-          maxAge: 3600000, // 1 час
           httpOnly: true,
           sameSite: 'none',
           secure: true,
@@ -82,7 +81,6 @@ const login = (req, res, next) => {
       );
       res
         .cookie('jwt', token, {
-          maxAge: 3600000,
           httpOnly: true,
           sameSite: 'none',
           secure: true,
@@ -94,7 +92,6 @@ const login = (req, res, next) => {
 
 const deleteCookie = (req, res) => {
   res.clearCookie('jwt', {
-    maxAge: 3600000,
     httpOnly: true,
     sameSite: 'none',
     secure: true,
