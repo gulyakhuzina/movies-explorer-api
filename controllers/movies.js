@@ -36,13 +36,18 @@ const createMovie = (req, res, next) => {
 };
 
 const deleteMovie = (req, res, next) => {
-  const { movieId } = req.params;
-  Movie.findOneAndRemove({ movieId })
+  const { _id } = req.params;
+  Movie.findById({ _id })
     .orFail()
     .then((movie) => {
-      res.status(OK).send(movie);
-    })
-    .catch(next);
+      if (movie.owner.toString() === req.user._id) {
+        movie.deleteOne()
+          .then((deleteCard) => {
+            res.send(deleteCard);
+          })
+          .catch(next);
+      } else throw new ForbiddenError('Доступ запрещен');
+    });
 };
 
 module.exports = {
